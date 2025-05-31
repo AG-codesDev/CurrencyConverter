@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 
 const Converter = () => {
-  const currencyAPI =
+  const allCurrencyAPI =
     "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json";
 
-  const [fromCurrency, setFromCurrency] = useState("usd");
-  const [toCurrency, setToCurrency] = useState("inr");
-  const [amount, setAmount] = useState(0);
+  const currencyValueAPI =
+    "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies";
+
+  const [fromCurrency, setFromCurrency] = useState("");
+  const [toCurrency, setToCurrency] = useState("");
+  const [amount, setAmount] = useState();
   const [currencyTypes, setCurrencyTypes] = useState([]);
+  const [specificCurVal, setSpecificCurVal] = useState([]);
+  const [result, setResult] = useState(0);
 
   const handleFromCurrencyChange = (e) => {
     setFromCurrency(e.target.value);
@@ -21,13 +26,27 @@ const Converter = () => {
     setAmount(e.target.value);
   };
   const handleConvertBtnClick = () => {
-    console.log(amount);
-    console.log(fromCurrency);
-    console.log(toCurrency);
+    getCurrencyValue();
   };
 
+  if (amount === "") return;
+
+  useEffect(() => {
+    if (
+      specificCurVal &&
+      fromCurrency &&
+      toCurrency &&
+      amount &&
+      specificCurVal[fromCurrency] &&
+      specificCurVal[fromCurrency][toCurrency]
+    ) {
+      const value = specificCurVal[fromCurrency][toCurrency];
+      setResult(amount * value);
+    }
+  }, [specificCurVal]);
+
   const getAllCurrencies = async () => {
-    const res = await fetch(currencyAPI);
+    const res = await fetch(allCurrencyAPI);
     const data = await res.json();
     setCurrencyTypes(data);
   };
@@ -36,14 +55,23 @@ const Converter = () => {
     getAllCurrencies();
   }, []);
 
+  const getCurrencyValue = async () => {
+    const res = await fetch(currencyValueAPI + `/${fromCurrency}.json`);
+    const data = await res.json();
+    setSpecificCurVal(data);
+  };
+
   return (
-    <section className="flex flex-col bg-gray-200 h-4/5 w-1/4 rounded-2xl justify-between p-3 items-center ">
+    <section className="flex flex-col bg-zinc-200 h-4/5 w-1/4 rounded-2xl justify-between p-3 items-center ">
       <h2 className="text-center font-bold text-3xl mt-4 text-blue-600">
         Currency Converter
       </h2>
       <div className="input&&btn w-3/4 flex flex-col gap-5">
         <div className="fromCurrency flex flex-col ">
-          <label htmlFor="fromCurrency" className="text-lg my-2">
+          <label
+            htmlFor="fromCurrency"
+            className="text-lg font-extralight my-2"
+          >
             From
           </label>
           <select
@@ -62,7 +90,7 @@ const Converter = () => {
         </div>
 
         <div className="toCurrency flex flex-col">
-          <label htmlFor="toCurrency" className="text-lg my-2">
+          <label htmlFor="toCurrency" className="text-lg font-extralight my-2">
             To
           </label>
           <select
@@ -89,15 +117,19 @@ const Converter = () => {
       </div>
       <div className="btn-result flex flex-col items-center gap-5">
         <button
-          className="bg-green-600 font-bold text-white p-3 rounded-lg cursor-pointer"
+          className="bg-red-500 font-bold text-white p-3 rounded-lg cursor-pointer"
           onClick={handleConvertBtnClick}
-          //   onClick={printFromCurrency}
         >
-          Convert {"INR"} to {"USD"}
+          Convert {fromCurrency} to {toCurrency}
         </button>
-        <span className="Result text-lg">
-          <span>Result: </span>
-          <span>{35}</span>
+        <span className="Result text-lg flex flex-col">
+          {/* <span>Result: </span> */}
+          <input
+            type="text"
+            value={Number(result.toFixed(2))}
+            className="bg-green-300 p-3 focus:outline-none rounded-lg text-center my-5"
+            readOnly
+          />
         </span>
       </div>
     </section>
