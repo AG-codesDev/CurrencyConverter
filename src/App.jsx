@@ -1,6 +1,10 @@
+import Converter from "./Components/Converter";
+
 function App() {
   return (
-    <div className=" body h-screen w-screen bg-neutral-800 flex justify-center items-center"></div>
+    <main className=" body h-screen w-screen bg-neutral-800 flex justify-center items-center">
+      <Converter />
+    </main>
   );
 }
 
