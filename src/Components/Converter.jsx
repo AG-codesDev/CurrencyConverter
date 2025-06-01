@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useCurrencies } from "../hooks/useCurrencies";
 
 const Converter = () => {
   const allCurrencyAPI =
@@ -7,10 +8,12 @@ const Converter = () => {
   const currencyValueAPI =
     "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies";
 
+  const currencyTypes = useCurrencies(allCurrencyAPI);
+
   const [fromCurrency, setFromCurrency] = useState("");
   const [toCurrency, setToCurrency] = useState("");
-  const [amount, setAmount] = useState();
-  const [currencyTypes, setCurrencyTypes] = useState([]);
+  const [amount, setAmount] = useState(0);
+  // const [currencyTypes, setCurrencyTypes] = useState([]);
   const [specificCurVal, setSpecificCurVal] = useState([]);
   const [result, setResult] = useState(0);
 
@@ -29,8 +32,6 @@ const Converter = () => {
     getCurrencyValue();
   };
 
-  if (amount === "") return;
-
   useEffect(() => {
     if (
       specificCurVal &&
@@ -44,16 +45,6 @@ const Converter = () => {
       setResult(amount * value);
     }
   }, [specificCurVal]);
-
-  const getAllCurrencies = async () => {
-    const res = await fetch(allCurrencyAPI);
-    const data = await res.json();
-    setCurrencyTypes(data);
-  };
-
-  useEffect(() => {
-    getAllCurrencies();
-  }, []);
 
   const getCurrencyValue = async () => {
     const res = await fetch(currencyValueAPI + `/${fromCurrency}.json`);
